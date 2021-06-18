@@ -1,3 +1,4 @@
-@echo 시작해볼까
-python C:\myPackage\Investar\print.py
+@echo 시작! 
+cd C:\myPackage\Investar
+python DBUpdater.py
 pause
