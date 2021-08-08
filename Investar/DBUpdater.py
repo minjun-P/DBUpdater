@@ -11,7 +11,7 @@ from threading import Timer
 class DBUpdater:
     def __init__(self):
         """생성자: MariaDB 연결 및 종목코드 딕셔너리 생성"""
-        self.conn = pymysql.connect(host='localhost', user='root', port=3307,
+        self.conn = pymysql.connect(host='localhost', user='root', port=3306,
                                     passwd='Pmjshpmj78!', db='investar',
                                     charset='utf8')
 
@@ -179,6 +179,33 @@ class DBUpdater:
     def execute_daily(self):
         """실행 즉시 및 매일 오후 다섯시에 daily_price 테이블 업데이트"""
         self.update_comp_info()
+
+
+        """
+        새로운 구상, 일단 처음에 데이터베이스 MAX날짜 확인하고 NONE이면 PAGES TO FETCH에 100, 아니면 비교해서 10나누고 몫
+        구해서 변수에 넣기
+        
+        """
+        curs = self.conn.cursor()
+
+        sql = "SELECT max(date) FROM daily_price"
+        curs.execute(sql)
+        rs = curs.fetchone()
+
+        if rs[0] is None:
+            pages_to_fetch =200
+        else:
+            lastday = datetime.strptime(str(rs[0]).replace('-',''),"%Y%m%d")
+            today = datetime.now()
+            diff = today - lastday
+            diff = diff.days
+            pages_to_fetch = diff//10
+            if pages_to_fetch==0:
+                pages_to_fetch=1
+            
+
+        """
+                이전 방식 
         try:
             with open('config.json', 'r') as in_file:
                 # 디스크에 있는 json 파일에 담긴 데이터를 config 변수에 저장
@@ -190,6 +217,7 @@ class DBUpdater:
                 config = {'pages_to_fetch': 1}
                 # config 변수에 담은 dict 형식의 데이터를 json 화 해서 파일에 담고 저장
                 json.dump(config, out_file)
+                """
         self.update_daily_price(pages_to_fetch)
 
         tmnow = datetime.now()

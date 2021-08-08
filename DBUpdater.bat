@@ -1,4 +1,4 @@
 @echo Ω√¿€! 
-cd C:\myPackage\Investar
+cd C:\projects\DBUpdater\Investar
 python DBUpdater.py
 pause
