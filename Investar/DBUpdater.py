@@ -52,7 +52,7 @@ class DBUpdater:
         """KRX 로부터 상장법인목록 파일을 읽어와서 데이터프레임으로 변환"""
         # 다운로드 url 가져오는 방식! 기억할 것. post 방식일것이므로 개발자 도구에서 데이터 참고
         url = 'https://kind.krx.co.kr/corpgeneral/corpList.do?method=download&pageIndex=1&currentPageSize=3000' \
-              '&orderMode=3&orderStat=D&searchType=13&fiscalYearEnd=all&location&all '
+            '&orderMode=3&orderStat=D&searchType=13&fiscalYearEnd=all&location&all '
         krx = pd.read_html(url, header=0)[0]
         # 파일 가져와서 테이블 읽기 - excel 파일도 읽어주는 pandas ㄷㄷㄷ
         krx = krx[['종목코드', '회사명']]
@@ -91,14 +91,14 @@ class DBUpdater:
 
                     # sql 문 실행해서 임시 변수에 담은 데이터를 테이블에 업데이트
                     sql = "REPLACE INTO company_info (code, company," \
-                          "last_update) VALUES ('{}','{}','{}')".format(code, company, today)
+                        "last_update) VALUES ('{}','{}','{}')".format(code, company, today)
                     curs.execute(sql)
                     # 딕셔너리에 해당 회사와 종목 코드 매치해 넣기
                     self.codes[code] = company
                     nowtime = datetime.now().strftime('%Y-%m-%d %H:%M')
                     # 진행상황 확인 겸, 구문 출력
                     print("[{0}] {1} REPLACE INTO company_info VALUES ({2}, {3}, {4})".format(nowtime, idx, code,
-                                                                                              company, today))
+                                                                                            company, today))
                 self.conn.commit()
                 print('')
 
@@ -161,12 +161,12 @@ class DBUpdater:
             # 데이터프레임에 넣어놨던 시세 정보를 이터레이터 튜플로 만들어 반복문에 활용 -> 순차적으로 집어넣기
             for r in df.itertuples():
                 sql = f"REPLACE INTO daily_price VALUES ('{code}','{r.date}',{r.open}," \
-                      f"{r.high},{r.low},{r.close},{r.diff},{r.volume})"
+                    f"{r.high},{r.low},{r.close},{r.diff},{r.volume})"
                 curs.execute(sql)
             self.conn.commit()
 
             print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M')}] #{num + 1:04d} {company} ({code}) : {len(df)}"
-                  f"rows > REPLACE INTO daily_price [OK]")
+                f"rows > REPLACE INTO daily_price [OK]")
 
     def update_daily_price(self, pages_to_fetch):
         """KRX 상장법인의 주식 시세를 네이버로부터 읽어서 DB에 업데이트"""
@@ -203,21 +203,6 @@ class DBUpdater:
             if pages_to_fetch==0:
                 pages_to_fetch=1
             
-
-        """
-                이전 방식 
-        try:
-            with open('config.json', 'r') as in_file:
-                # 디스크에 있는 json 파일에 담긴 데이터를 config 변수에 저장
-                config = json.load(in_file)
-                pages_to_fetch = config['pages_to_fetch']
-        except FileNotFoundError:
-            with open('config.json', 'w') as out_file:
-                pages_to_fetch = 100
-                config = {'pages_to_fetch': 1}
-                # config 변수에 담은 dict 형식의 데이터를 json 화 해서 파일에 담고 저장
-                json.dump(config, out_file)
-                """
         self.update_daily_price(pages_to_fetch)
 
         tmnow = datetime.now()
